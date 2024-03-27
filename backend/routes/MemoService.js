@@ -5,7 +5,7 @@ const User = require("../models/UserSchema");
 
 // NOTE: dev only
 // TODO: secure with Admin role
-router.get("/all", async (req, res) => {
+router.get("/all", async (req, res, next) => {
   const pass = req.query.pass;
 
   if (pass !== process.env.DEV_PASS) {
@@ -25,7 +25,7 @@ router.get("/all", async (req, res) => {
 
 // TODO: update to use JWT for auth for user instead of passing a user_id
 // get for a user's memos
-router.get("/:user_id", async (req, res) => {
+router.get("/:user_id", async (req, res, next) => {
   // TODO: validate user_id is a valid user
   const user_id = req.params.user_id;
 
@@ -47,7 +47,7 @@ router.get("/:user_id", async (req, res) => {
 });
 
 // TODO: add in authentication for create
-router.get("/:user_id/:id", async (req, res) => {
+router.get("/:user_id/:id", async (req, res, next) => {
   // TODO: validate for user_id & memo_id pair
   const memoID = req.params.id;
   const userID = req.params.user_id;
@@ -69,31 +69,25 @@ router.get("/:user_id/:id", async (req, res) => {
 
 // TODO: validation of input
 // TODO: add in authentication for create
-router.post("/:user_id", async (req, res) => {
+router.post("/:user_id", async (req, res, next) => {
   const user_id = req.params.user_id;
-  const memo = {
-    name: req.body.name,
-    date: req.body.date,
-    location: {
-      name: req.body.location.name,
-      coordinates: [
-        req.body.location.coordinates[0],
-        req.body.location.coordinates[1],
-      ],
-    },
-    description: req.body.description,
-    user_id: user_id,
-  };
 
   try {
-    const result = await Memo.create(memo);
+    const memo = new Memo({
+      name: req.body.name,
+      date: req.body.date,
+      location: {
+        name: req.body.location.name,
+        coordinates: [
+          req.body.location.coordinates[0],
+          req.body.location.coordinates[1],
+        ],
+      },
+      description: req.body.description,
+      user_id: user_id,
+    });
 
-    if (!result) {
-      console.log(result);
-      const err = new Error("Document not created");
-      err.status = 400;
-      throw err;
-    }
+    const result = await memo.save();
 
     console.log({ message: "Created memo", result: result });
     res.status(201).send(memo);
@@ -103,7 +97,7 @@ router.post("/:user_id", async (req, res) => {
 });
 
 // TODO: add in authentication for update
-router.put("/:user_id/:id", async (req, res) => {
+router.put("/:user_id/:id", async (req, res, next) => {
   const memo_id = req.params.id;
   const userID = req.params.user_id;
 
@@ -140,7 +134,7 @@ router.put("/:user_id/:id", async (req, res) => {
   }
 });
 
-router.delete("/:user_id/:id", async (req, res) => {
+router.delete("/:user_id/:id", async (req, res, next) => {
   // TODO: validate user_id & memo_id pair
   const memo_id = req.params.id;
   const user_id = req.params.user_id;

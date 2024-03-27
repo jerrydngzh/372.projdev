@@ -1,73 +1,34 @@
 // CreateAccountPage.js
-'use client'
+// @ts-nocheck
 import {useNavigate} from 'react-router-dom'
-import React, { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { UserController } from '../controllers/user.controller';
 
 const CreateAccountPage = () => {
-  
   const navigate = useNavigate();
-  const [submitted, setSubmitted] = useState(false);
   const [userData, setUserData] = useState({
-    firstname: '',
-    lastname: '',
+    first_name: '',
+    last_name: '',
     username: '',
     email: '',
     password: '',
   });
-  const [existingUserData, setExistingUserData] = useState({});
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('http://localhost:3000/api/users/');
-        const data = await response.json();
-        console.log('Fetched Accounts:', data);
-        setExistingUserData(data || {}); // Set the data in state
-      } catch (error) {
-        console.error('Error fetching accounts:', error);
-      }
-    };
-
-    fetchData();
-  }, []); // Run the effect only once on component mount
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Check if the username already exists
-    if (existingUserData[userData.username]) {
-      console.error('Username already exists');
-      // Provide user feedback (e.g., set an error state)
-      return;
-    }
+    // NOTE: allowing duplicate username as each user will have unique id
 
     try {
-      // Make a POST request to the createAccount API route
-      const response = await fetch('http://localhost:3000/api/users/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      });
-      const data = await response.json();
-
-      if (data.success) {
-        setSubmitted(true);
-      } else {
-        console.error('Error creating account:', data.message);
-        // Provide user feedback (e.g., set an error state)
-      }
+      // Create new User
+      const user = await UserController.create_user(userData)   
+      console.log("Successfully created user: ", user)
+      navigate('/user');
     } catch (error) {
       console.error('Error creating account:', error);
       // Provide user feedback (e.g., set an error state)
     }
   };
-
-  if (submitted) {
-    // Redirect to profile page or any other page
-    navigate('/user');
-  }
 
   function BackButton() {
     return (
@@ -82,20 +43,20 @@ const CreateAccountPage = () => {
         <label htmlFor='firstname' className="text-lg text-blue-800">First Name</label>
         <input
         type='text'
-        id='firstname'
-        name='firstname'
-        value={userData.firstname}
+        id='first_name'
+        name='first_name'
+        value={userData.first_name}
         required
-        onChange={(e) => setUserData((prevUserData) => ({ ...prevUserData, firstname: e.target.value }))}
+        onChange={(e) => setUserData((prevUserData) => ({ ...prevUserData, first_name: e.target.value }))}
         />
         <label htmlFor='lastname' className="text-lg text-blue-800">Last Name</label>
         <input
         type='text'
-        id='lastname'
-        name='lastname'
-        value={userData.lastname}
+        id='last_name'
+        name='last_name'
+        value={userData.last_name}
         required
-        onChange={(e) => setUserData((prevUserData) => ({ ...prevUserData, lastname: e.target.value }))}
+        onChange={(e) => setUserData((prevUserData) => ({ ...prevUserData, last_name: e.target.value }))}
         />
         <label htmlFor='username' className="text-lg text-blue-800">Username</label>
         <input

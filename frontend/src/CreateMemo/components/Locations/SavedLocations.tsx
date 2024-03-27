@@ -1,6 +1,7 @@
+// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 
-const GetSavedLocations = ({ id, reloadDropdown, onDropdownReloaded, onLocationSelected }) => {
+const SavedLocations = ({ id, reloadDropdown, onDropdownReloaded, onLocationSelected }) => {
   const [savedLocations, setSavedLocations] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState('');
 
@@ -49,4 +50,4 @@ const GetSavedLocations = ({ id, reloadDropdown, onDropdownReloaded, onLocationS
   );
 };
 
-export default GetSavedLocations;
+export default SavedLocations;

@@ -1,7 +1,9 @@
+// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import Popup from './Popup';
 import './style.css';
 import { Link } from 'react-router-dom';
+import { UserController } from '../controllers/user.controller';
 
 const Dashboard = () => {
   const [tags, setTags] = useState([]);
@@ -19,14 +21,14 @@ const Dashboard = () => {
   const [reloadDashboard, setReloadDashboard] = useState(true);
   const [key, setReloadKey] = useState(true);
   const [popReload, setPopReload] = useState(true);
+
   const fetchData = async () => {
     try {
       const searchParams = new URLSearchParams(window.location.search);
       const idFromQuery = searchParams.get('id') || '';
       setID(idFromQuery);
       
-      const response = await fetch(`http://localhost:3000/api/users/${idFromQuery}`);
-      const data = await response.json();
+      const data = await UserController.get_user_profile(idFromQuery)
       setUserData(data);
       setTags(data.tags || []);
       fetchMemos(data.memos);
@@ -40,9 +42,12 @@ const Dashboard = () => {
     const mem = {};
     for (const id of memoID) {
       try {
+        // FIXME
         const response = await fetch(`http://localhost:3000/api/memos/${id}`);
         const data = await response.json(); 
         mem[id] = data;
+
+
 
         Loc[data.location.name] = data.location.coordinates;
       } catch (error) {
@@ -52,6 +57,7 @@ const Dashboard = () => {
     setMemos({...memos, mem});
     setLocations({...locations, ...Loc});
   };
+
   const handlePopupSubmit = () => {
     // Update any state or perform actions needed after submitting the popup
     // For example, you can reload data or refresh the popup by updating its key
@@ -130,6 +136,8 @@ const Dashboard = () => {
           if (memo.location.name === location && memo.tags.includes(tagToDelete)) {
             const updatedTags = memo.tags.filter((cat) => cat !== tagToDelete);
             memo.tags = updatedTags;
+            
+            // FIXME
             await fetch(`http://localhost:3000/api/memos/${memo._id}`, {
               method: 'PUT',
               headers: {
@@ -164,6 +172,7 @@ const Dashboard = () => {
     });
 
     try {
+      // FIXME
       await fetch(`http://localhost:3000/api/memos/${memoid}`, {
         method: 'PUT',
         headers: {
@@ -214,6 +223,7 @@ const Dashboard = () => {
     console.log(memo);
     try {
       // Make a DELETE request to the delete memo API route
+      // FIXME
       const response = await fetch(`http://localhost:3000/api/memos/${memo._id}`, {
         method: 'DELETE',
         headers: {
@@ -221,22 +231,20 @@ const Dashboard = () => {
         },
       });
       const data = await response.json();
+      
         // Update userData.memos array by removing the deleted memo
-      const updatedMemos = userData.memos.filter(m => m !== memo._id);
-      setUserData(prevUserData => ({
-        ...prevUserData,
-        memos: updatedMemos
-      }));
+      const updatedMemos = userData.memos.filter(m => m !== memo._ixdx);
+
+      let newUserData = userData
+      newUserData.memos = updatedMemos
+      setUserData(newUserData);
+
       const searchParams = new URLSearchParams(window.location.search);
       const idFromQuery = searchParams.get('id') || '';
+
       // Update user data by sending a PUT request
-      await fetch(`http://localhost:3000/api/users/${idFromQuery}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ memos: updatedMemos }),
-      });
+      const editResponse = await UserController.update_user(idFromQuery, newUserData)
+      console.log('Edited user: ', editResponse)
 
       setReloadDashboard(true);
       // Optionally handle success response

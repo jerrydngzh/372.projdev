@@ -1,19 +1,19 @@
+// @ts-nocheck
 "use client"
 import { useState, useEffect } from 'react'
-import {useNavigate} from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { UserController } from '../controllers/user.controller';
 
 const User = () => {
     const navigate = useNavigate();
     const [route, setRoute] = useState('');
     const [id, setId] = useState('');
     const [existingUserData, setExistingUserData] = useState([]);
-    const [loggedIn, setLoggedIn] = useState(false); // New state for login status
 
     useEffect(() => {
       const fetchData = async () => {
         try {
-          const response = await fetch('http://localhost:3000/api/users/');
-          const data = await response.json();
+          const data = await UserController.get_all()
           console.log('Fetched Accounts:', data);
           setExistingUserData(data || []); // Set the data in state
         } catch (error) {
@@ -30,15 +30,17 @@ const User = () => {
       const target = event.target;
 
       // Your form processing logic goes here
-      const enteredUsername = target.elements.username.value;
+      const enteredUsername = target.elements.user_name.value;
       const enteredPassword = target.elements.password.value;
       const enteredEmail = target.elements.email.value;
-      existingUserData.forEach((user)=>{
+
+      // Ignore the fact that this isnt really safe or secure i pinky promise to fix it later
+      existingUserData.forEach((user: any)=>{
           if(user.username === enteredUsername){
             if(user.password == enteredPassword && user.email === enteredEmail){
               setId(user._id);
-              setLoggedIn(true);
-            }else {
+              navigate(`/profile?id=${user._id}`);
+            } else {
               // Handle incorrect credentials (show an error message, for example)
               console.log('Incorrect username or password');
             }
@@ -54,12 +56,6 @@ const User = () => {
       )
     }
 
-    // Redirect logic
-    if (loggedIn) {
-      // Redirect to profile page or any other page
-      navigate(`/profile?id=${id}`);
-    }
-
     return (
       <main className='Create-Profile w-1/3 text-left m-auto mt-10 bg-blue-200 p-10 pr-20 pl-20 rounded-3xl border-2 border-blue-800'>
         <BackButton></BackButton>
@@ -68,9 +64,9 @@ const User = () => {
           <label htmlFor='username' className="text-lg text-blue-800"> User Name</label>
           <input
             type="text"
-            id="username"
-            name="username"
-            className='username'
+            id="user_name"
+            name="user_name"
+            className='user_name'
             required
             onChange={(event) => {
               setRoute(event.target.value);

@@ -1,9 +1,9 @@
-'use client'
+ // @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import markerIcon from '/images/marker-icon.png';
-const MapForm = ({ selectedLocation, onMapClick }) => {
+const MapForm = ({ selectedLocation, onMapClick }: any) => {
   const [initialPosition, setInitialPosition] = useState([49.27326489299744, -123.10365200042726]);
 
   const [positions, setPositions] = useState([initialPosition]);
@@ -23,7 +23,7 @@ const MapForm = ({ selectedLocation, onMapClick }) => {
     }
   }, [selectedLocation]);
 
-  const addMarkerAndNavigate = (location) => {
+  const addMarkerAndNavigate = (location: any) => {
     setPositions([location]); // Set the positions array with only the new location
     onMapClick(location); // Trigger the map click event
     setInitialPosition(location);
@@ -39,7 +39,7 @@ const MapForm = ({ selectedLocation, onMapClick }) => {
       },
     });
 
-    const deleteMarker = (index, e) => {
+    const deleteMarker = (index: any, e: any) => {
       e.stopPropagation(); // Stop event propagation to prevent the map click event
       const updatedPositions = [...positions];
       updatedPositions.splice(index, 1); // Remove the position at the specified index
@@ -48,7 +48,7 @@ const MapForm = ({ selectedLocation, onMapClick }) => {
 
     return positions.map((position, index) => (
       <Marker key={index} position={position} icon={customMarkerIcon} draggable={true} eventHandlers={{
-        dragend: (e) => {
+        dragend: (e: any) => {
           const updatedPositions = [...positions];
           updatedPositions[index] = [e.target.getLatLng().lat, e.target.getLatLng().lng]; // Update the position at the specified index
           setPositions(updatedPositions);

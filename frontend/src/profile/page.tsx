@@ -1,9 +1,10 @@
 'use client'
 import {Link} from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { UserController } from '../controllers/user.controller';
 
 const Profile = () => {
-  const [userData, setUserData] = useState([]);
+  const [userData, setUserData] = useState<any>({});
   const [id, setID] = useState('');
 
   useEffect(() => {
@@ -16,9 +17,8 @@ const Profile = () => {
     // Fetch user data from the JSON file
     const fetchData = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/api/users/${idFromQuery}`);
-        const data = await response.json();
-        console.log('Fetched Accounts:', data);
+        const data = await UserController.get_user_profile(idFromQuery)
+        console.log('Fetched Account:', data);
         setUserData(data || {});
         
          // Set the data in state
